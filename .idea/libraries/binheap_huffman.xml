@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="binheap_huffman">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/src/binheap_huffman.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
