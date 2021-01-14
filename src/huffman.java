@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 // Knoten für den Huffman-Trie
 class HNode{
 	// chars enthält bei Blattknoten ein Zeichen, ansonsten alle Zeichen der darunterliegenden Knoten
@@ -37,7 +39,13 @@ class Huffman {
 	// Zur Erinnerung: ein char kann wie eine Ganzzahl verwendet werden, daher funktioniert f[c] für jedes char c.
 	public Integer[] calculateFrequencies(String text){
 		Integer[] f = new Integer[256];
-		// TODO
+		for(char c:text.toCharArray()){
+			if(c>255 || c<0)
+				continue;
+			if(f[c]==null)
+				f[c]=0;
+			f[c]++;
+		}
 		return f;
 	}
 
@@ -45,7 +53,32 @@ class Huffman {
 	// frequencies enthält die Häufigkeiten (siehe calculateFrequencies). Häufigkeit von 0 bedeutet, das entsprechende Zeichen ist nicht im Text vorhanden und wir brauchen keinen Präfixcode dafür.
 	// Die Funktion setzt den Knoten root auf den Wurzelknoten des PräfixCode-Baums und gibt diesen Wurzelknoten außerdem zurück
 	public HNode constructPrefixCode(Integer[] frequencies){
-		// TODO
+		BinHeap<Integer,HNode> binHeap=new BinHeap<>();
+		//ArrayList<BinHeap.Entry<Integer,String>> entries=new ArrayList<>();
+		for(int i=0;i<frequencies.length;i++){
+			if(frequencies[i]==null)
+				continue;
+			//entries.add(binHeap.insert(frequencies[i],""+(char)i));
+			HNode hNode=new HNode();
+			hNode.chars=""+(char)i;
+			binHeap.insert(frequencies[i],hNode);
+		}
+
+		while(binHeap.size()>1){
+			BinHeap.Entry<Integer,HNode> e1=binHeap.extractMin();
+			BinHeap.Entry<Integer,HNode> e2=binHeap.extractMin();
+			if(e1.prio()>e2.prio()){
+				BinHeap.Entry<Integer,HNode> temp=e2;
+				e2=e1;
+				e1=temp;
+			}
+			HNode hNode=new HNode();
+			hNode.chars=e1.data().chars+e2.data().chars;
+			hNode.leftChild=e1.data();
+			hNode.rightChild=e2.data();
+			binHeap.insert(e1.prio()+e2.prio(),hNode);
+		}
+		root=binHeap.extractMin().data();
 		return root;
 	}
 
@@ -56,8 +89,26 @@ class Huffman {
 	// Erster Parameter: Zu kodierender Text
 	// Zweiter Parameter zeigt an, ob ein neuer Präfixcode erzeugt werden soll (true) oder mit dem aktuellen Präfixcode gearbeitet werden soll (false)
 	public String encode(String text, boolean newPrefixCode){
+		if(newPrefixCode){
+			constructPrefixCode(calculateFrequencies(text));
+		}else{
+			if(!canEncode(text))
+				return null;
+		}
 		String result = "";
-		// TODO
+		for(char c:text.toCharArray()){
+			HNode cNode=root;
+			while (cNode.leftChild!=null){
+				if(cNode.leftChild.chars.indexOf(c)>=0){
+					cNode=cNode.leftChild;
+					result+="0";
+				}
+				else{
+					cNode=cNode.rightChild;
+					result+="1";
+				}
+			}
+		}
 		return result;
 	}
 
@@ -77,9 +128,36 @@ class Huffman {
 	}
 
 	// Präfixcodes ausgeben
-	// Reihenfolge: preOrder, also WLR, zuerst Wurzel, dann linker Teilbaum, dann rechter Teilbaum
-	public void dumpPrefixCodes(){
-		// TODO
+// Reihenfolge: preOrder, also WLR, zuerst Wurzel,
+// dann linker Teilbaum, dann rechter Teilbaum
+// modus = false: Zeichenkette jedes Knoten ausgeben
+// modus = true: Zeichenkette und Code jedes Blattknoten ausgeben
+// Beispiele siehe in PNG-Datei P4_Huffman_Dump_Beispiel.png
+	public void dumpPrefixCodes(boolean modus){
+		if(!modus){
+			dumbNodes(root);
+		}else {
+			dumbNodeBlatt(root,"");
+		}
+	}
+
+	private void dumbNodeBlatt(HNode n,String code){
+		if(n.leftChild!=null){
+			dumbNodeBlatt(n.leftChild,code+"0");
+			dumbNodeBlatt(n.rightChild,code+"1");
+		}else{
+			System.out.println(n.chars+": "+code);
+		}
+	}
+
+	private void dumbNodes(HNode n){
+		System.out.println(n.chars);
+		if(n.leftChild!=null){
+			dumbNodes(n.leftChild);
+			dumbNodes(n.rightChild);
+		}
+
+
 	}
 }
 
@@ -164,7 +242,10 @@ class HuffmanTest {
 					lastPrefixCode = h.constructPrefixCode(exampleFrequencies);
 					break;
 				case "dump": // Präfix-Codes ausgeben
-					h.dumpPrefixCodes();
+					h.dumpPrefixCodes(true);
+					break;
+				case "dumptree": // Präfix-Codebaum-Knoten ausgeben
+					h.dumpPrefixCodes(false);
 					break;
 				default:
 					System.out.println("Unknown Function: " + funct);
