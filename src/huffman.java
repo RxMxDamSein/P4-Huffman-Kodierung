@@ -29,8 +29,26 @@ class Huffman {
 	// Prüfen, ob ein Text mit dem aktuell erstellten Huffman-Code kodiert werden kann, ob also alle Zeichen einen Präfix-Code besitzen. Wenn ja, return true, wenn nein, return false. 
 	// Prüfen, ob ein Text mit dem aktuell erstellten Huffman-Code kodiert werden kann, ob also alle Zeichen einen Präfix-Code besitzen. Wenn ja, return true, wenn nein, return false.
 	public boolean canEncode(String text){
-		// TODO
+		zeichen=new ArrayList<>();
+		getZeichen(root);
+		for(char c:text.toCharArray()){
+			if(!zeichen.contains(c))
+				return false;
+		}
 		return true;
+	}
+
+	private ArrayList<Character> zeichen;
+	private void getZeichen(HNode n){
+		if(n.leftChild!=null){
+			getZeichen(n.leftChild);
+			getZeichen(n.rightChild);
+		}else{
+			Character c=n.chars.toCharArray()[0];
+			if (!zeichen.contains(c)){
+				zeichen.add(c);
+			}
+		}
 	}
 
 	// Vor dem eigentlichen Algorithmus kann mit dieser Funktion die Häufigkeit der einzelnen Zeichen aus dem übergebenen Text errechnet werden.
@@ -115,15 +133,29 @@ class Huffman {
 	// Dekodierung eines Huffman-Kodierten Textes. (Skipt S.107)
 	// Die Ergebnis-Zeichenkette ist der ursprüngliche Text vor der Huffman-Kodierung
 	public String decode(String huffmanEncoded){
-		// TODO
-		return "";
+		return (root==null)?null:decode(huffmanEncoded,root);
 	}
 
 	// Dekodierung eines Huffman-Kodierten Textes mithilfe des übergebenen Präfix-Codebaums. (Skipt S.107) Der aktuelle Baum soll dabei nicht überschrieben werden.
 	// Die Ergebnis-Zeichenkette ist der ursprüngliche Text vor der Huffman-Kodierung
 	public String decode(String huffmanEncoded, HNode rootNode){
 		String result = "";
-		// TODO
+		HNode cNode=rootNode;
+		for(char c:huffmanEncoded.toCharArray()){
+			//System.out.print(""+c);
+			if(cNode.leftChild!=null){
+				if(c=='0')
+					cNode=cNode.leftChild;
+				else
+					cNode=cNode.rightChild;
+			}
+			if(cNode.leftChild==null){
+				//System.out.print(cNode.chars+" ");
+				result+=cNode.chars;
+				cNode=rootNode;
+			}
+		}
+		//System.out.println();
 		return result;
 	}
 
