@@ -129,8 +129,11 @@ class Huffman {
 		if(newPrefixCode){
 			constructPrefixCode(calculateFrequencies(text));
 		}else{
-			if(!canEncode(text))
+			if(!canEncode(text)){
+				System.out.println("Der übergebene Text kann nicht encoded werden!");
 				return null;
+			}
+
 		}
 		String result = "";
 		for(char c:text.toCharArray()){
