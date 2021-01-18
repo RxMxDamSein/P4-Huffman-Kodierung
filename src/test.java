@@ -3,7 +3,7 @@ public class test {
         Huffman huffman=new Huffman();
         Integer[] frequent=huffman.calculateFrequencies("ABRACADABRA");
         for(int i=0;i<frequent.length;i++){
-            if(frequent[i]==null)
+            if(frequent[i]==0)
                 continue;
             System.out.println((char)i+" - "+frequent[i]);
         }
@@ -61,5 +61,6 @@ public class test {
         wurzel3=huffman3.constructPrefixCode(exampleFrequencies);
         System.out.println(huffman3.canEncode("lol"));
         System.out.println(huffman3.decode("01011001110011110101100",wurzel));
+        System.out.println(huffman3.encode("",true));
     }
 }

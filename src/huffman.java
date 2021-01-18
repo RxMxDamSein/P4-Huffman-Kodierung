@@ -56,6 +56,7 @@ class Huffman {
 			return null;
 		}
 		Integer[] f = new Integer[256];
+		for(int i=0;i<f.length;i++)f[i]=0;
 		for(char c:text.toCharArray()){
 			if(c>255 || c<0)
 				continue;
@@ -78,7 +79,7 @@ class Huffman {
 		//ArrayList<BinHeap.Entry<Integer,HNode>> entries=new ArrayList<>();
 
 		for(int i=0;i<frequencies.length;i++){
-			if(frequencies[i]==null || frequencies[i]==0)
+			if(frequencies[i]==0 || frequencies[i]==null)
 				continue;
 			HNode hNode=new HNode();
 			hNode.chars=""+(char)i;
@@ -101,7 +102,11 @@ class Huffman {
 		}
 		root=binHeap.extractMin().data();
 		codes=new String[frequencies.length];
-		makeCodes(root,"");
+		if(root.leftChild==null){
+			codes[root.chars.charAt(0)]="0";
+		}else{
+			makeCodes(root,"");
+		}
 		return root;
 	}//nichts zu bescheren
 
@@ -122,7 +127,7 @@ class Huffman {
 	// Erster Parameter: Zu kodierender Text
 	// Zweiter Parameter zeigt an, ob ein neuer Präfixcode erzeugt werden soll (true) oder mit dem aktuellen Präfixcode gearbeitet werden soll (false)
 	public String encode(String text, boolean newPrefixCode){
-		if(text==null){
+		if(text==null|| text.length()<1){
 			System.out.println("Der übergebenen Text ist null!");
 			return null;
 		}
@@ -137,6 +142,9 @@ class Huffman {
 		}
 		String result = "";
 		for(char c:text.toCharArray()){
+			result+=codes[c];
+		}
+		/*for(char c:text.toCharArray()){
 			HNode cNode=root;
 			while (cNode.leftChild!=null){
 				if(cNode.leftChild.chars.indexOf(c)>=0){
@@ -148,7 +156,7 @@ class Huffman {
 					result+="1";
 				}
 			}
-		}
+		}*/
 		return result;
 	}
 
@@ -198,7 +206,11 @@ class Huffman {
 		if(!modus){
 			dumbNodes(root);
 		}else {
-			dumbNodeBlatt(root,"");
+			if(root.leftChild==null){
+				System.out.println(root.chars+": "+codes[root.chars.charAt(0)]);
+			}else{
+				dumbNodeBlatt(root,"");
+			}
 		}
 	}
 
